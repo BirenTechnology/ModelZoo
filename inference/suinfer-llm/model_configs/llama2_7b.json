@@ -1,0 +1,23 @@
+{
+    "model": "meta-llama/Llama-2-7b-hf",
+    "cached_dir": "/path/to/huggingface_model_cache_dir",
+    "input_name": "input_ids.1",
+    "output_name": "9",
+    "vocab_size": 32000,
+    "model_file": "/path/to/pt_model_file",
+    "serialize_file": "path/to/serialize_file",
+    "model_precision": "a_bf16_w_int8_kv_int8",
+    "build_seq": 1024,
+    "build_batch": 16,
+    "distribute_param": [
+        1,
+        1,
+        1
+    ],
+    "devices": [
+        0
+    ],
+    "all_models": {
+        "http://localhost:8002": "meta-llama/Llama-2-7b-hf"
+    }
+}
