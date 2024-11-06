@@ -25,19 +25,17 @@
 
 * 操作系统：Ubuntu 20.04
 * Python版本：Python3.8
-* Python三方依赖：
-  * transformers
-  * loguru
-  * torch==2.0.1
-  * accelerate==0.33.0
-  * sentencepiece==0.2.0
+* 可根据Dockerfile 构建转换环境的docker,其中默认的transformers版本是4.40.1
 
 > 注意：不同的模型需要的transformers的版本不同，推荐使用huggingface官方仓库中标明的版本。建议单独配置一个转换环境！
 
 ### 转换程序
 
 从huggingface官网下载模型文件之后，需要把其中config.json文件中的use_cache字段设置为false，否则可能会导致转换失败。
-模型转换成功之后，转换程序可参考model_convert.py
+模型转换成功之后，转换程序可参考model_convert.py，以Qwen/Qwen2-72B为例：
+```bash
+python3 model_convert.py --model_name models--Qwen--Qwen2-72B --model_dir /models--Qwen--Qwen2-72B/snapshots/87993795c78576318087f70b43fbf530eb7789e7 --output_dir ./
+```
 
 ## 离线推理
 
