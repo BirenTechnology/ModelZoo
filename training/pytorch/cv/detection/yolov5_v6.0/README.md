@@ -1,4 +1,4 @@
-# YOLOv5m_v5.0_IDff0d3778
+# YOLOv5m_v6.0_ID9057e273
 # 概述
 
 ## 简述
@@ -9,8 +9,8 @@ YOLO是一个经典的物体检测网络，将物体检测作为回归问题求�
 - 参考实现：
 
   ```
-  url=https://github.com/ultralytics/yolov5/tree/v5.0
-  commit_id=f5b8f7d54c9fa69210da0177fec7ac2d9e4a627c
+  url=https://github.com/ultralytics/yolov5/tree/v6.0
+  commit_id=956be8e642b5c10af4a1533e09084ca32ff4f21f
   ```
 
 - 适配壁仞 AI 处理器的实现：
@@ -42,9 +42,9 @@ YOLO是一个经典的物体检测网络，将物体检测作为回归问题求�
   | 配套       | 版本                                                         |
   | ---------- | ------------------------------------------------------------ |
   | 硬件       | Br10X |
-  | 固件与驱动  | master_3370 |
-  | pytorch    | 1.10.0+cpu |
-  | br_pytorch | 1.10.0+bde8c64 |
+  | 固件与驱动  | rel_2411 |
+  | pytorch    | 1.12.1+cpu |
+  | br_pytorch | rel_2411 |
 
 
 - 环境准备指导。 
@@ -53,7 +53,7 @@ YOLO是一个经典的物体检测网络，将物体检测作为回归问题求�
 
 - 安装依赖。
 
-    Python 3.8 环境下
+    Python 3.10.12 环境下
 
   ```
   bash ./requirements.sh
@@ -84,8 +84,9 @@ YOLO是一个经典的物体检测网络，将物体检测作为回归问题求�
      启动单卡训练。
 
      ```
+     # 示例为yolov5s，需更改为v5m
+     # 可参考 opensource-modelzoo/training/pytorch/cv/detection/yolov5_v5.0/run.sh
      bash ./run.sh
-
      ```
 
    - 单机8卡训练
@@ -93,6 +94,7 @@ YOLO是一个经典的物体检测网络，将物体检测作为回归问题求�
      启动8卡训练。
 
      ```
+     # 示例为yolov5m，如训练yolov5m可直接执行
      bash ./dist_train.sh 
 
      ```
@@ -116,9 +118,9 @@ YOLO是一个经典的物体检测网络，将物体检测作为回归问题求�
 
 **表 2**  训练结果展示表
 
-| NAME     | mAP_0.5    | FPS    | Epochs | Torch_version |
+| NAME     | mAP_0.5(max)    | FPS    | Epochs | Torch_version |
 |--------  | ------ |:-------| ------ | :------------ |
-| 8p | 0.625 | 721 | 300 | 1.10.0 |
+| 8p | 0.63 | 712 | 300 | 1.12.1 |
 
 # 版本说明
 
@@ -126,7 +128,7 @@ YOLO是一个经典的物体检测网络，将物体检测作为回归问题求�
 
 ## 变更
 
-2024.07.19：更新Readme发布。
+2024.11.16：更新Readme发布。
 
 ## 已知问题
 
