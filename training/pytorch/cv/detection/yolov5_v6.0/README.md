@@ -1,135 +1,215 @@
 # YOLOv5m_v6.0_ID9057e273
+
+[toc]
+
 # 概述
 
-## 简述
+## 模型介绍
 
-YOLO是一个经典的物体检测网络，将物体检测作为回归问题求解。YOLO训练和推理均是在一个单独网络中进行。
-基于一个单独的end-to-end网络，输入图像经过一次inference，便能得到图像中所有物体的位置和其所属类别及相应的置信概率。
+Yolov5算法是目前应用最广泛的目标检测算法之一，它基于深度学习技术，在卷积神经网络的基础上加入了特征金字塔网络和SPP结构等模块，从而实现了高精度和快速检测速度的平衡。
+
+## 支持任务列表
+
+本仓已经支持以下模型任务类型
+
+|      模型      | 任务列表 | 是否支持 |
+| :------------: | :------: | :------: |
+|    Yolov5m     |  预训练  |    ✔     |
+
+## 代码实现
 
 - 参考实现：
 
   ```
-  url=https://github.com/ultralytics/yolov5/tree/v6.0
-  commit_id=956be8e642b5c10af4a1533e09084ca32ff4f21f
+  url=https://github.com/ultralytics/yolov5/tree/v6.0 
+
+  commit_id=956be8e6
   ```
 
-- 适配壁仞 AI 处理器的实现：
+# 环境依赖
 
-  ```
-  url=https://github.com/BirenTechnology/ModelZoo
-  code_path=training/pytorch/cv/detection
-  ```
+  **表 1**  系统支持表
 
-- 通过Git获取代码方法如下：
+|   系统   | 支持版本 |
+| :---------: | :------: |
+|   Ubuntu   |  22.04   |
 
-  ```
-  git clone {url}       # 克隆仓库的代码
-  cd {code_path}        # 切换到模型代码所在路径，若仓库下只有该模型，则无需切换
-  ```
-
-- 通过单击“立即下载”，下载源码包。
+  **表 2**  三方库版本支持表
+|   三方库    | 支持版本 |
+| :---------: | :------: |
+|   PyTorch   |  1.12.1   |
 
 
-
-# 准备训练环境
+# 预训练
 
 ## 准备环境
 
-- 当前模型支持的固件与驱动、pytorch以及br_pytorch 如下表所示。 
+<table><tr><tdbgcolor=#ffeccc><b>说明：</b><ul><li>您可以联系壁仞产品服务团队获取软件包和源码。</li><li>本文中提到的软件安装包或镜像文件名称仅为示例。实际操作时，请以当时获取的软件版本和文件名称为准。</li></ul></td></tr></table>
 
-  **表 1**  版本配套表
+### Host 端操作
 
-  | 配套       | 版本                                                         |
-  | ---------- | ------------------------------------------------------------ |
-  | 硬件       | Br10X |
-  | 固件与驱动  | rel_2411 |
-  | pytorch    | 1.12.1+cpu |
-  | br_pytorch | rel_2411 |
+**注意： `<version>` 表示软件包版本号，请根据实际获取的软件版本进行替换。**
+
+1. 准备数据集： 自行准备 coco2017 数据集。下载地址：https://cocodataset.org/#home
 
 
-- 环境准备指导。 
+2. 安装驱动。
 
-  安装对应版本固件、驱动、pytorch以及br_pytorch
+   ```bash
+   sudo bash biren-driver_<version>_linux-x86_64.run
+   ```
+3. 安装 biren-container-toolkit。
 
-- 安装依赖。
+   ```bash
+   sudo bash biren-container-toolkit_<version>_linux-x86_64.run
+   ```
+4. 获取基础镜像。
 
-    Python 3.10.12 环境下
+   ```bash
+   docker load -i birensupa-pytorch-<version>.tar
+   ```
+5. 启动容器。
 
-  ```
-  bash ./requirements.sh
-  ```
-  
-## 准备数据集
+   ```bash
+   docker run --name <container_name> -it -d \
 
+   --shm-size='256g'\
 
-   模型启动自动下载数据集，手动下载请参考: data/scripts/get_coco.sh
+   --network=host  \
 
+   --device/dev/biren:/dev/biren \
 
-# 开始训练
+   -v <path_to_parent_path_coco2017>:/workspace/datasets \
 
-## 训练模型
+   -v <host_kernel_cache_parent_path>:/workspace/model_kernel_cache \
 
-1. 进入解压后的源码包根目录。
+   -v <path_to_br_pytorch_model_zoo>:/workspace/br_pytorch_model_zoo birensupa-pytorch:<version> /bin/bash
 
    ```
-   cd /${模型文件夹名称}
+
+   | 参数                                                    | 描述                                                         |
+   | ------------------------------------------------------- | ------------------------------------------------------------ |
+   | --shm-size='256g'                                       | 设置 shm size 为 256g。                                      |
+   | --network=host                                          | （可选）设置网络模式为 host 网络。                           |
+   | --device /dev/biren:/dev/biren                          | 挂载 biren 设备。                                            |
+   | -v <path_to_parent_path_coco2017>:/workspace/datasets         | 挂载数据集。                                 |
+   | -v <host_kernel_cache_parent_path>:/workspace/model_kernel_cache          | 挂载kernel_cache。                                 |
+   | -v <path_to_br_pytorch_model_zoo>:/workspace/br_pytorch_model_zoo | 挂载 br_pytorch_model_zoo 目录。                             |
+
+### Docker 端操作
+
+1. 安装环境依赖 。
+
+  - 安装环境。
+
+    ```bash
+    cd /workspace/br_pytorch_model_zoo/cv/ultralytics-yolov5m
+    pip3 install -r requirements.txt
+    pip3 uninstall wandb
+    pip3 install Pillow==9.5
+    ```
+
+
+## 开始训练
+
+1. 训练准备。
+
+   ```bash
+   cd /workspace/br_pytorch_model_zoo/cv/ultralytics-yolov5m
+
+   # 拷贝kernel_cache到对应目录下并修改脚本中名称
+   cp -r /workspace/model_kernel_cache/kernel_cache_yolov5m /root
+   sed -i 's/v5m-kernel-cache/kernel_cache_yolov5m/g'  dist_train.sh  
+
+   # link数据集到对应目录
+   ln -snf /workspace/datasets/coco2017  /workspace/br_pytorch_model_zoo/cv/coco   
+   ```
+2. 执行训练。
+
+   ```bash
+   bash dist_train.sh 2>&1 |tee rel_2411_Yolov5m.log
    ```
 
-2. 运行训练脚本。
 
-   该模型支持单机单卡训练和单机8卡训练。
+   > **说明：**
+   > 由于训练时间较长，建议使用[tmux](https://github.com/tmux/tmux/wiki)等工具后台执行，避免控制台中断。
+   >
+4. 查看 log 和 tensorboard
 
-   - 单机单卡训练
+   ```bash
+   # log 被重定向到了 rel_2411_Yolov5m.log 文件下
 
-     启动单卡训练。
+   # tensorboard 和其他数据存在放runs目录下
+   ```
 
-     ```
-     # 示例为yolov5s，需更改为v5m
-     # 可参考 opensource-modelzoo/training/pytorch/cv/detection/yolov5_v5.0/run.sh
-     bash ./run.sh
-     ```
+### 可改参数
 
-   - 单机8卡训练
+修改 `/workspace/br_pytorch_model_zoo/cv/ultralytics-yolov5/dist_train.sh`  脚本里的参数
 
-     启动8卡训练。
+| 参数 | 描述 |
+| --- | --- |
+|data|指定使用的数据集|
+|cfg|指定运行的yolov5配置，本文为Yolov5m|
+|epochs|训练的epoch数|
+|device|指定使用的GPU|
 
-     ```
-     # 示例为yolov5m，如训练yolov5m可直接执行
-     bash ./dist_train.sh 
+> 注意！以上参数不宜建议修改，否则精度性能数据无法保证。参数详细含义参考 /workspace/br_pytorch_model_zoo/cv/ultralytics-yolov5m/train.py。
 
-     ```
+## 训练结果展示
 
-   模型训练脚本参数说明如下。
+**机器配置：**
 
-      ```
-      公共参数：
-      --device                            //训练指定训练用卡
-      --data                              //训练所需的yaml文件
-      --cfg                               //训练过程中涉及的参数配置文件
-      --weights                           //权重
-      --batch-size                        //训练批次大小
-      --workers                           //dataloader线程数
-      ```
-   
-      训练完成后，权重文件保存在当前路径下，并输出模型训练精度和性能信息。
+|  NAME | 配置
+| ---- | -----
+|  GPU版本类型和型号 | Biren106M
+|  CPU型号/核数/主频| Intel(R) Xeon(R) Platinum 8462Y+
+| 硬盘类型及容量 | GPFS
+| 内存根数及大小 | 2T=64G*32
+| OS和内核版本 |Linux version 5.4.0-125-generic Ubuntu 20.04.5 LTS
+| Flash FW版本 | 001050100091
+| 网卡 | ROCE_v2 100G
+
+### 性能
+
+Throughput 计算方法：
+
+global_batch_size  / step_time
+
+-`global_batch_size`：总 batch_size，本文中单卡32，8卡为 32 * 8 = 256；
+
+-`step_time`：一个step花费的时间，为训练打印数据的倒数；
+
+计算方式示例：
+选取某个epoch打印的性能数据，如 2.80it/s，Throughput = 256 / (1 / 2.80) = 716 samples/s
 
 
-# 训练结果展示
+**表 4** 训练结果展示表，仅供参考
 
-**表 2**  训练结果展示表
+|  NAME | 集群 |TGS
+| ---- | ----- | ------
+| Yolov5m -BR10X | 1x8 | 716
+| Yolov5m -参考| 1x8 | -
 
-| NAME     | mAP_0.5(max)    | FPS    | Epochs | Torch_version |
-|--------  | ------ |:-------| ------ | :------------ |
-| 8p | 0.63 | 712 | 300 | 1.12.1 |
+### Loss
+
+Yolov5m，基于1机8卡，实测100个epoch， loss稳定下降。
+
+### 精度
+
+vim rel_2411_yolov5m.log，查看最后一个epoch打印的精度数据，如：mAP50：0.669；mAP50-95：0.503
+
+
 
 # 版本说明
 
-# 公网地址说明
+当前版本号：v0.1
 
 ## 变更
 
-2024.11.16：更新Readme发布。
+|  版本号 | 时间  | 概况  |
+| ------------ | ------------ | ------------ |
+|  v0.1 |  2024.11.19 |  首次发布，支持 Yolov5m 预训练  |
 
-## 已知问题
+## FAQ
 
 无。
