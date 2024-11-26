@@ -83,7 +83,7 @@ Yolov5算法是目前应用最广泛的目标检测算法之一，它基于深�
 
    -v <host_kernel_cache_parent_path>:/workspace/model_kernel_cache \
 
-   -v <path_to_br_pytorch_model_zoo>:/workspace/br_pytorch_model_zoo birensupa-pytorch:<version> /bin/bash
+   -v <path_to_ModelZoo>:/workspace/ModelZoo birensupa-pytorch:<version> /bin/bash
 
    ```
 
@@ -94,7 +94,7 @@ Yolov5算法是目前应用最广泛的目标检测算法之一，它基于深�
    | --device /dev/biren:/dev/biren                          | 挂载 biren 设备。                                            |
    | -v <path_to_parent_path_coco2017>:/workspace/datasets         | 挂载数据集。                                 |
    | -v <host_kernel_cache_parent_path>:/workspace/model_kernel_cache          | 挂载kernel_cache。                                 |
-   | -v <path_to_br_pytorch_model_zoo>:/workspace/br_pytorch_model_zoo | 挂载 br_pytorch_model_zoo 目录。                             |
+   | -v <path_to_ModelZoo>:/workspace/ModelZoo | 挂载 br_pytorch_model_zoo 目录。                             |
 
 ### Docker 端操作
 
@@ -103,7 +103,7 @@ Yolov5算法是目前应用最广泛的目标检测算法之一，它基于深�
   - 安装环境。
 
     ```bash
-    cd /workspace/br_pytorch_model_zoo/cv/ultralytics-yolov5m
+    cd /workspace/ModelZoo/training/pytorch/cv/detection/yolov5_v6.0
     pip3 install -r requirements.txt
     pip3 uninstall wandb
     pip3 install Pillow==9.5
@@ -115,19 +115,19 @@ Yolov5算法是目前应用最广泛的目标检测算法之一，它基于深�
 1. 训练准备。
 
    ```bash
-   cd /workspace/br_pytorch_model_zoo/cv/ultralytics-yolov5m
+   cd /workspace/ModelZoo/training/pytorch/cv/detection/yolov5_v6.0
 
    # 拷贝kernel_cache到对应目录下并修改脚本中名称
    cp -r /workspace/model_kernel_cache/kernel_cache_yolov5m /root
    sed -i 's/v5m-kernel-cache/kernel_cache_yolov5m/g'  dist_train.sh  
 
    # link数据集到对应目录
-   ln -snf /workspace/datasets/coco2017  /workspace/br_pytorch_model_zoo/cv/coco   
+   ln -snf /workspace/datasets/coco2017  /workspace/ModelZoo/training/pytorch/cv/detection/coco   
    ```
 2. 执行训练。
 
    ```bash
-   bash dist_train.sh 2>&1 |tee rel_2411_Yolov5m.log
+   bash dist_train.sh 2>&1 |tee yolov5m.log
    ```
 
 
@@ -137,14 +137,14 @@ Yolov5算法是目前应用最广泛的目标检测算法之一，它基于深�
 4. 查看 log 和 tensorboard
 
    ```bash
-   # log 被重定向到了 rel_2411_Yolov5m.log 文件下
+   # log 被重定向到了 yolov5m.log 文件下，可打开后查看。
 
-   # tensorboard 和其他数据存在放runs目录下
+   # tensorboard 和其他数据存在放runs目录下，可使用tensorboard打开查看。
    ```
 
 ### 可改参数
 
-修改 `/workspace/br_pytorch_model_zoo/cv/ultralytics-yolov5/dist_train.sh`  脚本里的参数
+修改 `/workspace/ModelZoo/training/pytorch/cv/detection/yolov5_v6.0/dist_train.sh`  脚本里的参数
 
 | 参数 | 描述 |
 | --- | --- |
@@ -153,7 +153,7 @@ Yolov5算法是目前应用最广泛的目标检测算法之一，它基于深�
 |epochs|训练的epoch数|
 |device|指定使用的GPU|
 
-> 注意！以上参数不宜建议修改，否则精度性能数据无法保证。参数详细含义参考 /workspace/br_pytorch_model_zoo/cv/ultralytics-yolov5m/train.py。
+> 注意！以上参数不宜建议修改，否则精度性能数据无法保证。参数详细含义参考 /workspace/ModelZoo/training/pytorch/cv/detection/yolov5_v6.0/train.py。
 
 ## 训练结果展示
 
@@ -165,7 +165,7 @@ Yolov5算法是目前应用最广泛的目标检测算法之一，它基于深�
 |  CPU型号/核数/主频| Intel(R) Xeon(R) Platinum 8462Y+
 | 硬盘类型及容量 | GPFS
 | 内存根数及大小 | 2T=64G*32
-| OS和内核版本 |Linux version 5.4.0-125-generic Ubuntu 20.04.5 LTS
+| OS和内核版本 |Linux version 5.15.0-94-generic Ubuntu 22.04 LTS
 | Flash FW版本 | 001050100091
 | 网卡 | ROCE_v2 100G
 
@@ -196,7 +196,7 @@ Yolov5m，基于1机8卡，实测100个epoch， loss稳定下降。
 
 ### 精度
 
-vim rel_2411_yolov5m.log，查看最后一个epoch打印的精度数据，如：mAP50：0.669；mAP50-95：0.503
+vim yolov5m.log，查看最后一个epoch打印的精度数据，如：mAP50：0.669；mAP50-95：0.503
 
 
 
