@@ -1,0 +1,14 @@
+pytest
+pytest-timeout
+GitPython
+transformers==4.44.2
+numba
+megfile
+tabulate
+tiktoken==0.4.0
+pulp
+fairscale
+fire
+blobfile
+datasets
+

@@ -1,0 +1,56 @@
+#　每个op被执行时，如果它的offloaders中有同名的offloader，会调用save for offload方法，用于保存将要被offload和prefetch的tensor，具体是否save for offload，也跟offloader对应的schedule有关。
+# 如果do_offload被置为False，那么当执行当前op时不会执行此offloader的offload操作。
+# save_for_offload_tensor_idxs是save for backward的tensor的索引
+# split_tensor_idxs是save_for_offload_tensor_idxs中需要被split的tensor
+
+offloaders:
+  - name: _RMSNormWithTensorPool:0
+    schedule: OffloadByLayerMbAndStageV3
+    offload_tensor_idxs: [0, 2]
+    split_tensor_idxs: null
+  - name: _MatmulTransposeWeightWithTensorPool:0
+    schedule: OffloadByLayerMbAndStageV3
+    offload_tensor_idxs: [0]
+    split_tensor_idxs: [0]
+  - name: _SudnnScaledDotProductAttention:0
+    schedule: OffloadByLayerMbAndStageV3
+    offload_tensor_idxs: [0, 1, 2, 3, 5]
+    split_tensor_idxs: null
+  - name: _RMSNormWithTensorPool:1
+    schedule: OffloadByLayerMbAndStageV3
+    offload_tensor_idxs: [0, 2]
+    split_tensor_idxs: null
+  - name: _FusedLlama2MLPWithTensorPool:0
+    schedule: OffloadByLayerMbAndStageV3
+    offload_tensor_idxs: [1, 5]
+    split_tensor_idxs: [5]
+
+# 一个op可以launch多个op的offload
+offload_strategies:
+  - name: _RMSNormWithTensorPool:0
+    offloaders:
+      - name: _RMSNormWithTensorPool:0
+        do_prefetch: True
+  - name: _MatmulTransposeWeightWithTensorPool:0
+    offloaders:
+      - name: _RMSNormWithTensorPool:0
+        do_offload: True
+      - name: _MatmulTransposeWeightWithTensorPool:0
+        offload_and_prefetch: True
+  - name: _SudnnScaledDotProductAttention:0
+    offloaders:
+      - name: _SudnnScaledDotProductAttention:0
+        do_offload: True
+        do_prefetch: [1,2,3,5]
+  - name: _RMSNormWithTensorPool:1
+    offloaders:
+      - name: _RMSNormWithTensorPool:1
+        offload_and_prefetch: False
+      - name: _SudnnScaledDotProductAttention:0
+        do_prefetch: [0]
+  - name: _FusedLlama2MLPWithTensorPool:0
+    offloaders:
+      - name: _FusedLlama2MLPWithTensorPool:0
+        offload_and_prefetch: True
+      - name: _RMSNormWithTensorPool:1
+        offload_and_prefetch: True

@@ -21,26 +21,22 @@ try:
 except ImportError:
     nltk_available = False
 
-import megatron_br
-import megatron
 from megatron.training.tokenizer import build_tokenizer
 from megatron.core.datasets import indexed_dataset
 
-seed=42
-np.random.seed(seed)
-os.environ['PYTHONHASHSEED'] = str(seed)
-# # https://stackoverflow.com/questions/33139531/preserve-empty-lines-with-nltks-punkt-tokenizer
-# class CustomLanguageVars(nltk.tokenize.punkt.PunktLanguageVars):
 
-#     _period_context_fmt = r"""
-#         \S*                          # some word material
-#         %(SentEndChars)s             # a potential sentence ending
-#         \s*                       #  <-- THIS is what I changed
-#         (?=(?P<after_tok>
-#             %(NonWord)s              # either other punctuation
-#             |
-#             (?P<next_tok>\S+)     #  <-- Normally you would have \s+ here
-#         ))"""
+# https://stackoverflow.com/questions/33139531/preserve-empty-lines-with-nltks-punkt-tokenizer
+class CustomLanguageVars(nltk.tokenize.punkt.PunktLanguageVars):
+
+    _period_context_fmt = r"""
+        \S*                          # some word material
+        %(SentEndChars)s             # a potential sentence ending
+        \s*                       #  <-- THIS is what I changed
+        (?=(?P<after_tok>
+            %(NonWord)s              # either other punctuation
+            |
+            (?P<next_tok>\S+)     #  <-- Normally you would have \s+ here
+        ))"""
 
 class IdentitySplitter(object):
     def tokenize(self, *text):
@@ -65,13 +61,13 @@ class Encoder(object):
                 library = os.path.join("tokenizers", "punkt", f"{self.args.lang}.pickle")
                 url = f"nltk:{library}"
             splitter = nltk.load(url)
-            # if self.args.keep_newlines:
-            #     # this prevents punkt from eating newlines after sentences
-            #     Encoder.splitter = nltk.tokenize.punkt.PunktSentenceTokenizer(
-            #         train_text = splitter._params,
-            #         lang_vars = CustomLanguageVars())
-            # else:
-            Encoder.splitter = splitter
+            if self.args.keep_newlines:
+                # this prevents punkt from eating newlines after sentences
+                Encoder.splitter = nltk.tokenize.punkt.PunktSentenceTokenizer(
+                    train_text = splitter._params,
+                    lang_vars = CustomLanguageVars())
+            else:
+                Encoder.splitter = splitter
 
         else:
             Encoder.splitter = IdentitySplitter()
@@ -236,16 +232,6 @@ def get_args():
     group.add_argument('--keep-sequential-samples', action='store_true',
                        help='Ensure ordering of samples in .jsonl files is '
                             'preserved when using partitions>1.')
-    # new biren args
-    group = parser.add_argument_group('BIREN Configurations')
-    group.add_argument(
-        '--pad-vocab-size-to',
-        type=int,
-        default=None,
-        help='Pad the vocab size to this value.'
-        'This value must be greater than the initial size of the tokenizer'
-        ', needs to be divisible by TP size and `make-vocab-size-divisible-by`.',
-    )
     args = parser.parse_args()
     args.keep_empty = False
 
@@ -419,5 +405,6 @@ def main():
 
 
 if __name__ == '__main__':
+
     main()
 

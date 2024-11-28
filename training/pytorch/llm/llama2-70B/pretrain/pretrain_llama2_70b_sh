@@ -1,0 +1,91 @@
+#!/bin/bash
+
+# Copyright © 2024 Shanghai Biren Technology Co., Ltd. All rights reserved.
+
+set -ex
+_THIS_DIR=$(dirname "$0")
+
+ 
+
+ARGS=${@:3}
+
+GPUS_PER_NODE=8
+# Change for multinode config
+MASTER_ADDR=$1
+MASTER_PORT=6000
+NNODES=16
+NODE_RANK=$2
+WORLD_SIZE=$(($GPUS_PER_NODE*$NNODES))
+
+TP_SIZE=8
+PP_SIZE=8
+NLAYERS=80
+HIDDEN=8192
+FFN_SIZE=28672
+SEQ_LEN=4096
+MAX_POS=4096
+NHEADS=64
+NQG=8
+GLOBAL_BATCH=256
+MICRO_BATCH=2
+
+LOSS_SCALE=12
+
+TRAINING_DATASET="redpajama-full"
+
+source $_THIS_DIR/env.sh
+source $_THIS_DIR/args.sh
+
+CONFIG_PATH=${_THIS_DIR}/async_offload_configs/70b_async_offload_config_interleave_split_offload_prefetch.yaml
+
+LOCAL_ARGS="
+    --position-embedding-type rope \
+    --no-position-embedding \
+    --untie-embeddings-and-output-weights \
+    --use-rms-norm \
+    --use-llama-mlp \
+    --supa-fuse-attention-transform \
+    --supa-fuse-split-qkv \
+    --supa-fuse-rope \
+    --fused-mlp \
+    --supa-fuse-crossentropy \
+    --no-dropout \
+    --sequence-parallel \
+    --sudnn-attention \
+    --bind-numa-node \
+    --use-tensor-pool \
+    --inplace-comm \
+    --llama2mlp-with-tensor-pool \
+    --supa-fuse-embedding \
+    --num-workers 0 \
+    --supa-fuse-rmsnorm \
+    --sp-mode mb_then_seq \
+    --bf16-optimizer-use-flat-buffers \
+    --sccl-enable-input-buffer-writing \
+    --pp-comm-directly \
+    --num-layers-per-virtual-pipeline-stage 5 \
+    --async-offload-config $CONFIG_PATH \
+    --use-distributed-optimizer \
+    --optimizer-flatten-on-cpu \
+    --async-grad-allgather \
+    --tp-comm-overlap-rs-row-bpw \
+    "
+
+    # --torch-supti-profiler \
+    # --profiler-schedule 1 1 1 1 \
+    # --profiler-dir $PROFILE_PATH \
+
+    # --zero-stage 1 \
+    # --recompute-granularity=full \
+    # --recompute-method=uniform \
+    # --recompute-num-layers-of-stages 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5\
+    # --checkpoint-in-cpu \
+    # --cpu-optimizer \
+    
+
+torchrun $DISTRIBUTED_ARGS ${_THIS_DIR}/../../model/pretrain_llama.py \
+    $MODEL_ARGS \
+    $LOCAL_ARGS \
+    $DATA_ARGS \
+    $OUTPUT_ARGS \
+    2>&1 | tee -a $LOGS_PATH/${timestamp}.log
