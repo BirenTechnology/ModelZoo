@@ -33,6 +33,7 @@
 
 从huggingface官网下载模型文件之后，需要把其中config.json文件中的use_cache字段设置为false，否则可能会导致转换失败。
 模型转换成功之后，转换程序可参考model_convert.py，以Qwen/Qwen2-72B为例：
+
 ```bash
 python3 model_convert.py --model_name models--Qwen--Qwen2-72B --model_dir /models--Qwen--Qwen2-72B/snapshots/87993795c78576318087f70b43fbf530eb7789e7 --output_dir ./
 ```
@@ -303,9 +304,23 @@ print(response.text)
 ## 已知限制
 
 * 如果推理模型时只使用了单张卡，则只能使用0号卡；
+* 最大上下文长度不能超过8K；
 * 使用br-vllm-serving时，不能开启graph capture；
 * 模型配置文件中build_batch字段的值建议小于等于64，否则会报错。
+* 执行推理时需要加上BR_UMD_DEBUG_P2P_ACCESS_CHECK=0环境变量
 * 使用在线推理时，如果遇到“Error in applying chat template from request”信息，表示只能使用Completions API。
+* 对于仓库中提供的大模型样例，推荐使用如下配置
+
+  |模型|推荐TP策略|推荐推理精度|
+  |-------|-------|--------|
+  |LLaMa2 7B|TP1|a_bf16_w_int8_kv_int8|
+  |Baichuan2 7B|TP1|a_bf16_w_int8_kv_int8|
+  |ChatGLM3 6B|TP1|a_bf16_w_int8_kv_int8|
+  |Mistral 7B|TP1|a_bf16_w_int8_kv_int8|
+  |Qwen1.5 14B|TP2|a_bf16_w_int8_kv_int8|
+  |LLaMa2 70B|TP4/TP8|a_bf16_w_int8_kv_int8|
+  |Qwen2 72B|TP4/TP8|a_bf16_w_int8_kv_int8|
+
 
 ## 法律声明
 

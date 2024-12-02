@@ -1,14 +1,14 @@
 {
-    "model": "meta-llama/Llama-2-7b-hf",
+    "model": "baichuan-inc/Baichuan2-7B-Base",
     "cached_dir": "/path/to/huggingface_model_cache_dir",
     "input_name": "input_ids.1",
-    "output_name": "9",
-    "vocab_size": 32000,
+    "output_name": "4267",
+    "vocab_size": 125696,
     "model_file": "/path/to/pt_model_file",
     "serialize_file": "/path/to/serialize_file",
     "model_precision": "a_bf16_w_int8_kv_int8",
     "build_seq": 1024,
-    "build_batch": 16,
+    "build_batch": 20,
     "distribute_param": [
         1,
         1,
@@ -18,6 +18,6 @@
         0
     ],
     "all_models": {
-        "http://{服务器ip}:{服务器可用port}": "meta-llama/Llama-2-7b-hf"
+        "http://{服务器ip}:{服务器可用port}": "baichuan-inc/Baichuan2-7B-Base"
     }
 }

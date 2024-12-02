@@ -1,23 +1,24 @@
 {
-    "model": "meta-llama/Llama-2-7b-hf",
+    "model": "Qwen/Qwen1.5-14B-Chat",
     "cached_dir": "/path/to/huggingface_model_cache_dir",
     "input_name": "input_ids.1",
-    "output_name": "9",
-    "vocab_size": 32000,
+    "output_name": "10",
+    "vocab_size": 152064,
     "model_file": "/path/to/pt_model_file",
     "serialize_file": "/path/to/serialize_file",
     "model_precision": "a_bf16_w_int8_kv_int8",
     "build_seq": 1024,
-    "build_batch": 16,
+    "build_batch": 4,
     "distribute_param": [
-        1,
+        2,
         1,
         1
     ],
     "devices": [
-        0
+        0,
+        1
     ],
     "all_models": {
-        "http://{服务器ip}:{服务器可用port}": "meta-llama/Llama-2-7b-hf"
+        "http://{服务器ip}:{服务器可用port}": "Qwen/Qwen1.5-14B-Chat"
     }
 }
