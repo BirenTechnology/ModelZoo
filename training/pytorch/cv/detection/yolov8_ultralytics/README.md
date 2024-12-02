@@ -24,7 +24,7 @@ Yolov8 系列模型建立在以前 YOLO 版本的成功基础上，并引入了�
   ```
   url=https://github.com/ultralytics/ultralytics/tree/v8.2.45
 
-  commit_id=69cfc8aa
+  commit_id=69cfc8aa228dbf1267975f82fcae9a24665f23b9
   ```
 
 # 环境依赖
@@ -52,25 +52,44 @@ Yolov8 系列模型建立在以前 YOLO 版本的成功基础上，并引入了�
 
 **注意： `<version>` 表示软件包版本号，请根据实际获取的软件版本进行替换。**
 
-1. 准备数据集： 自行准备 coco2017 数据集。下载地址：https://cocodataset.org/#home
+1. 准备数据集： 自行准备 coco2017 数据集。下载地址：https://cocodataset.org/#home。数据集目录参考如下：
+```bash
+coco2017/
+├── annotations      # 标注目录
+│   └── instances_val2017.json
+├── images           # 数据集目录
+│   ├── test2017     # 测试集目录，约 20000 张图片
+│   ├── train2017    # 训练集目录，约 118000 张图片
+│   └── val2017      # 验证集目录，约 50000 张图片
+├── instances_minitrain2017.json
+├── labels
+│   ├── train2017
+│   └── val2017
+├── LICENSE
+├── README.txt
+├── test-dev2017.txt
+├── train2017.txt
+└── val2017.txt
+```
+> 注意！以上目录结构仅供参考。
 
 
-2. 安装驱动。
+1. 安装驱动。
 
    ```bash
    sudo bash biren-driver_<version>_linux-x86_64.run
    ```
-3. 安装 biren-container-toolkit。
+2. 安装 biren-container-toolkit。
 
    ```bash
    sudo bash biren-container-toolkit_<version>_linux-x86_64.run
    ```
-4. 获取基础镜像。
+3. 获取基础镜像。
 
    ```bash
    docker load -i birensupa-pytorch-<version>.tar
    ```
-5. 启动容器。
+4. 启动容器。
 
    ```bash
    docker run --name <container_name> -it -d \
@@ -83,9 +102,7 @@ Yolov8 系列模型建立在以前 YOLO 版本的成功基础上，并引入了�
 
    -v <path_to_parent_path_coco2017>:/workspace/datasets \
 
-   -v <host_kernel_cache_parent_path>:/workspace/model_kernel_cache \
-
-   -v br_pytorch_model_zoo:/workspace/br_pytorch_model_zoo birensupa-pytorch:<version> /bin/bash
+   -v <host_kernel_cache_parent_path>:/workspace/model_kernel_cache  birensupa-pytorch:<version> /bin/bash
    ```
 
    | 参数                                                    | 描述                                                         |
@@ -95,7 +112,6 @@ Yolov8 系列模型建立在以前 YOLO 版本的成功基础上，并引入了�
    | --device /dev/biren:/dev/biren                          | 挂载 biren 设备。                                            |
    | -v <path_to_parent_path_coco2017>:<docker_datasets_path>          | 挂载数据集。                                 |
    | -v <host_kernel_cache_parent_path>:/workspace/model_kernel_cache          | 挂载kernel_cache。                                 |
-   | -v  br_pytorch_model_zoo:/workspace/br_pytorch_model_zoo | 挂载 br_pytorch_model_zoo 目录。                             |
 
 ### Docker 端操作
 
@@ -104,9 +120,13 @@ Yolov8 系列模型建立在以前 YOLO 版本的成功基础上，并引入了�
   - 安装环境。
 
     ```bash
-    cd /workspace/br_pytorch_model_zoo/cv/ultralytics
+    # clone代码仓库
+    cd /workspace 
+    git clone https://gitlab.birentech.com/software/opensource-modelzoo.git
+    # 安装环境依赖
+    cd /workspace/ModelZoo/training/pytorch/cv/detection/yolov8_ultralytics
     python3 -m pip install -e .
-    export PYTHONPATH=/workspace/br_pytorch_model_zoo/:$PYTHONPATH
+    export PYTHONPATH=/workspace/ModelZoo/:$PYTHONPATH
     ```
 
 ## 开始训练
@@ -115,7 +135,7 @@ Yolov8 系列模型建立在以前 YOLO 版本的成功基础上，并引入了�
 
    ```bash
 
-   cd /workspace/br_pytorch_model_zoo/cv/ultralytics
+   cd /workspace/ModelZoo/training/pytorch/cv/detection/yolov8_ultralytics
 
    # 拷贝yolov8x的kernel_cache到对应目录下并修改脚本中名称
    cp -r /workspace/model_kernel_cache/kernel_cache_yolov8x /root
@@ -126,38 +146,32 @@ Yolov8 系列模型建立在以前 YOLO 版本的成功基础上，并引入了�
    sed -i 's/yolo_kernel_cache/kernel_cache_yolov8l/g' run.sh
 
    # link数据集到对应目录
-   mkdir -p datasets && ln -snf /workspace/datasets/coco2017 ./datasets/coco  
-
-   # 准备权重文件 yolov8n.pt 和字体文件 Arial.ttf
-   # 方式一：有网环境下，启动训练后会自动下载
-   # 方式二：无网环境下，分别将如下两个文件拷贝到容器内对应位置：
-   yolov8n.pt：用于amp前置验证。拷贝到容器内 /workspace/br_pytorch_model_zoo/cv/ultralytics 目录下
-   Arial.ttf：用于设置字体。拷贝到容器内 /root/.config/Ultralytics 目录下
+   mkdir -p datasets && ln -snf /workspace/datasets/coco2017 ./datasets/coco 
    ```
 2. 执行训练。
 
    ```bash
    # Yolov8x 训练
-   bash run_yolov8x.sh 2>&1 |tee rel_2411_yolov8x.log
+   bash run_yolov8x.sh 2>&1 |tee yolov8x.log
 
    # Yolov8l 训练
-   bash run.sh 2>&1 |tee rel_2411_yolov8l.log   
+   bash run.sh 2>&1 |tee yolov8l.log   
    ```
 
 
    > **说明：**
    > 由于训练时间较长，建议使用[tmux](https://github.com/tmux/tmux/wiki)等工具后台执行，避免控制台中断。
    >
-4. 查看 log 和 tensorboard
+3. 查看 log 和 tensorboard
 
    ```bash
-   # log 被重定向到了 rel_2411_yolov8x.log 文件下
-   # tensorboard 数据在 /workspace/br_pytorch_model_zoo/cv/ultralytics/runs 目录下生成，可使用tensorboard打开
+   # 训练 log 可查看 重定向文件，如：yolov8x.log 。
+   # tensorboard 数据在 /workspace/ModelZoo/training/pytorch/cv/detection/yolov8_ultralytics/runs 目录下生成，可使用tensorboard打开。
    ```
 
 ### 可改参数（以yolov8x为例）
 
-修改 `/workspace/br_pytorch_model_zoo/cv/ultralytics/run_yolov8x.sh`  脚本里的参数
+修改 `/workspace/ModelZoo/training/pytorch/cv/detection/yolov8_ultralytics/run_yolov8x.sh`  脚本里的参数
 
 | 参数 | 描述 |
 | --- | --- |
@@ -179,7 +193,7 @@ Yolov8 系列模型建立在以前 YOLO 版本的成功基础上，并引入了�
 |  CPU型号/核数/主频| Intel(R) Xeon(R) Platinum 8462Y+
 | 硬盘类型及容量 | GPFS
 | 内存根数及大小 | 2T=64G*32
-| OS和内核版本 |Linux version 5.4.0-125-generic Ubuntu 22.04 LTS
+| OS和内核版本 |Linux version 5.15.0-94-generic Ubuntu 22.04 LTS
 | Flash FW版本 | 001050100091
 | 网卡 | ROCE_v2 100G
 
@@ -206,7 +220,7 @@ yolov8l： 1.75 it/s，Throughput = 128 / (1 / 1.75) = 224 samples/s
 | Yolov8x -BR10X | 1x8 | 195
 | Yolov8x -参考| 1x8 | 666
 | Yolov8l -BR10X | 1x8 | 224
-| Yolov8x -参考| 1x8 | -
+| Yolov8l -参考| 1x8 | -
 
 ### Loss
 
@@ -216,9 +230,9 @@ Yolov8l，基于1机8卡，实测100个epoch， loss稳定下降。
 ### 精度
 
 - yolov8x：
-  vim rel_2411_yolov8x.log，查看最后一个epoch打印的精度数据，如：mAP50：0.669；mAP50-95：0.503
+  vim yolov8x.log，查看最后一个epoch打印的精度数据，如：mAP50：0.669；mAP50-95：0.503
 - yolov8l：
-  vim rel_2411_yolov8l.log，查看最后一个epoch打印的精度数据，如：mAP50：0.679；mAP50-95：0.512
+  vim yolov8l.log，查看最后一个epoch打印的精度数据，如：mAP50：0.679；mAP50-95：0.512
 
 
 
