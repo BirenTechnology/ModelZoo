@@ -212,4 +212,7 @@ vim yolov5m.log，查看最后一个epoch打印的精度数据，如：mAP50：0
 
 ## FAQ
 
-无。
+当前版本在训练时 gpu_mem 打印显示0G，需要修改运行目录下train.py文件，在21行下一行增加如下代码，再启动训练任务，可正常显示训练过程中GPU显存占用信息
+```bash
+from torch_br.contrib import transfer_to_supa
+```
