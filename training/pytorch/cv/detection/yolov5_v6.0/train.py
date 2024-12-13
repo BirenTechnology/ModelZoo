@@ -19,6 +19,7 @@ from pathlib import Path
 import numpy as np
 import torch
 import torch_br
+from torch_br.contrib import transfer_to_supa
 import torch.distributed as dist
 import torch.nn as nn
 import yaml
