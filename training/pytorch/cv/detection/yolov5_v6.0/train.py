@@ -19,7 +19,6 @@ from pathlib import Path
 import numpy as np
 import torch
 import torch_br
-from torch_br.contrib import transfer_to_supa
 import torch.distributed as dist
 import torch.nn as nn
 import yaml
@@ -372,7 +371,7 @@ def train(hyp,  # path/to/hyp.yaml or hyp dictionary
             # Log
             if RANK in [-1, 0]:
                 mloss = (mloss * i + loss_items) / (i + 1)  # update mean losses
-                mem = f'{torch.cuda.memory_reserved() / 1E9 if torch.cuda.is_available() else 0:.3g}G'  # (GB)
+                mem = f'{torch.supa.memory_reserved() / 1E9 if torch.supa.is_available() else 0:.3g}G'  # (GB)
                 pbar.set_description(('%10s' * 2 + '%10.4g' * 5) % (
                     f'{epoch}/{epochs - 1}', mem, *mloss, targets.shape[0], imgs.shape[-1]))
                 callbacks.run('on_train_batch_end', ni, model, imgs, targets, paths, plots, opt.sync_bn)

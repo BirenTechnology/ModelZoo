@@ -153,7 +153,7 @@ Yolov5算法是目前应用最广泛的目标检测算法之一，它基于深�
 |epochs|训练的epoch数|
 |device|指定使用的GPU|
 
-> 注意！以上参数不宜建议修改，否则精度性能数据无法保证。参数详细含义参考 /workspace/ModelZoo/training/pytorch/cv/detection/yolov5_v6.0/train.py。
+> 注意！以上参数不建议修改，否则精度性能数据无法保证。参数详细含义参考 /workspace/ModelZoo/training/pytorch/cv/detection/yolov5_v6.0/train.py。
 
 ## 训练结果展示
 
@@ -180,23 +180,23 @@ global_batch_size  / step_time
 -`step_time`：一个step花费的时间，为训练打印数据的倒数；
 
 计算方式示例：
-选取某个epoch打印的性能数据，如 2.80it/s，Throughput = 256 / (1 / 2.80) = 716 samples/s
+选取某个epoch打印的性能数据，如 2.77it/s，Throughput = 256 / (1 / 2.77) = 709 samples/s
 
 
 **表 4** 训练结果展示表，仅供参考
 
 |  NAME | 集群 |TGS
 | ---- | ----- | ------
-| Yolov5m -BR10X | 1x8 | 716
+| Yolov5m -BR10X | 1x8 | 709
 | Yolov5m -参考| 1x8 | -
 
 ### Loss
 
-Yolov5m，基于1机8卡，实测100个epoch， loss稳定下降。
+Yolov5m，基于1机8卡，实测300个epoch， loss稳定下降。
 
 ### 精度
 
-vim yolov5m.log，查看最后一个epoch打印的精度数据，如：mAP50：0.669；mAP50-95：0.503
+vim yolov5m.log，查看最后一个epoch打印的精度数据，如：mAP50：0.629；mAP50-95：0.428
 
 
 
@@ -212,7 +212,4 @@ vim yolov5m.log，查看最后一个epoch打印的精度数据，如：mAP50：0
 
 ## FAQ
 
-当前版本在训练时 gpu_mem 打印显示0G，需要修改运行目录下train.py文件，在21行下一行增加如下代码，再启动训练任务，可正常显示训练过程中GPU显存占用信息
-```bash
-from torch_br.contrib import transfer_to_supa
-```
+无
